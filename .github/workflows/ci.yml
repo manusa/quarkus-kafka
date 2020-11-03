@@ -1,5 +1,3 @@
-## This is basic continuous integration build for your Quarkus application.
-
 name: Quarkus Codestart CI
 
 on:
