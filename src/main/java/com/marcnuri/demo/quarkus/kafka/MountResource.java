@@ -1,9 +1,11 @@
 package com.marcnuri.demo.quarkus.kafka;
 
 import io.reactivex.Flowable;
+import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.jboss.resteasy.annotations.SseElementType;
 import org.reactivestreams.Publisher;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -13,15 +15,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 @Path("/")
-public class KafkaResource {
+public class MountResource {
 
   private final MountCreationService mountCreationService;
-  private final MountConsumerService mountConsumerService;
+  @Inject
+  @RequestScoped
+  @Channel("processed-mounts")
+  Publisher<Mount> processedMounts;
 
   @Inject
-  public KafkaResource(MountCreationService mountCreationService, MountConsumerService mountConsumerService) {
+  public MountResource(MountCreationService mountCreationService) {
     this.mountCreationService = mountCreationService;
-    this.mountConsumerService = mountConsumerService;
   }
 
   @GET
@@ -29,8 +33,8 @@ public class KafkaResource {
   @Produces(MediaType.SERVER_SENT_EVENTS)
   @SseElementType(MediaType.APPLICATION_JSON)
   @Inject
-  public Publisher<String> getMounts() {
-    return mountConsumerService.getMounts();
+  public Publisher<Mount> getMounts() {
+    return processedMounts;
   }
 
   @POST

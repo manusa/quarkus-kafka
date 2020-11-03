@@ -12,7 +12,7 @@ public class MountCreationService {
   private final Emitter<String> mountEmitter;
 
   @Inject
-  public MountCreationService(@Channel("mounts-outbox") Emitter<String> mountEmitter) {
+  public MountCreationService(@Channel("mounts-out") Emitter<String> mountEmitter) {
     this.mountEmitter = mountEmitter;
   }
 
