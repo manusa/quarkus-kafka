@@ -3,26 +3,46 @@ package com.marcnuri.demo.quarkus.kafka;
 import io.smallrye.reactive.messaging.annotations.Broadcast;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Random;
+import java.util.Map;
+import java.util.Optional;
 
 @ApplicationScoped
-public class MountProcessor {
+public class EntryProcessor {
 
-  private final Random random = new Random();
+  @Inject
+//  @RestClient
+  WikipediaService wikipediaService;
 
-  @Incoming("mounts")
-  @Outgoing("processed-mounts-out")
+  @Incoming("queries")
+  @Outgoing("entries-out")
   @Broadcast
-  public Mount process(String mountName) {
-    return new Mount(mountName, getRedirectUrl(mountName),random.nextInt(8849 - 1) + 1);
+  public Entry process(String query) {
+    final Optional<Map<String, Object>> wikipediaInfo = getWikipediaPageSummary(query);
+    return new Entry(
+      wikipediaInfo.map(info -> info.get("titles"))
+        .map(titles -> ((Map<String, ?>)titles).get("display").toString()).orElse(query),
+      wikipediaInfo.map(info -> info.get("description").toString()).orElse("n/a"),
+      query,
+      getRedirectUrl(query)
+    );
+  }
+
+  private Optional<Map<String, Object>> getWikipediaPageSummary(String query) {
+    try {
+      return Optional.of(wikipediaService.getPageSummary(query, true));
+    } catch (Exception ex) {
+      return Optional.empty();
+    }
   }
 
   private static String getRedirectUrl(String mountName) {

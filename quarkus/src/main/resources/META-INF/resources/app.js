@@ -1,18 +1,19 @@
 import {h, htm, render, useState, useEffect} from './lib/deps.js';
 const html = htm.bind(h);
 
-const MOUNTS_API = 'mounts';
+const QUERIES_API = 'queries';
+const ENTRIES_API = 'entries';
 
-const mountState = [];
+const entriesState = [];
 
-const processMount = async mount => {
+const newQuery = async query => {
   const headers = new Headers();
   headers.set('Content-Type', 'text/plain')
- await fetch(MOUNTS_API,{
-   method: 'POST',
-   headers,
-   body: mount
- });
+  await fetch(QUERIES_API, {
+    method: 'POST',
+    headers,
+    body: query
+  });
 };
 
 const Title = ({children}) => (html`
@@ -31,7 +32,7 @@ const Input = () => {
   const [value, setValue] = useState('');
   const onKeyDown = ({key, target: {value}}) => {
     if (key === 'Enter') {
-      processMount(value);
+      newQuery(value);
       setValue('');
     } else {
       setValue(value);
@@ -42,12 +43,12 @@ const Input = () => {
      class='block mx-auto rounded rounded-md shadow-sm py-1 px-2 border border-gray-500 w-4/5 lg:w-3/5'
      value=${value}
      onKeyDown=${onKeyDown}
-     placeholder='Mount'
+     placeholder='Query'
     />
   `);
 }
 
-const MountCard = ({name, image, elevation}) => (html`
+const DataCard = ({name, description, image, originalQuery}) => (html`
   <div class='w-full md:w-1/2 lg:w-1/3 p-4'>
     <div class='rounded overflow-hidden shadow-lg border border-gray-300'>
       <div
@@ -58,44 +59,45 @@ const MountCard = ({name, image, elevation}) => (html`
       </div>
       <div class='px-6 py-4'>
         <div class='font-bold text-xl'>${name}</div>
-        <div class='mt-2 text-sm'><strong>Elevation*:</strong> ${elevation} m</div>
+        <div class='text-sm'>${description}*</div>
+        <div class='mt-2 text-sm'><strong>Original query:</strong> ${originalQuery}</div>
       </div>
     </div>
   </div>
 `);
 
 const App = () => {
-  const [mounts, setMounts] = useState([]);
+  const [entries, setEntries] = useState([]);
   const [polling, setPolling] = useState(false);
   useEffect(() => {
     if (!polling) {
-      const es = new EventSource(MOUNTS_API);
-      es.onopen = () => mountState.length = 0;
+      const es = new EventSource(ENTRIES_API);
+      es.onopen = () => entriesState.length = 0;
       es.onmessage = ({data}) => {
-        mountState.unshift(JSON.parse(data));
-        setMounts([...mountState]);
+        entriesState.unshift(JSON.parse(data));
+        setEntries([...entriesState]);
       };
       setPolling(true);
     }
-  }, [setMounts]);
+  }, [setEntries]);
   return (html`
     <div class='py-12 bg-white'>
       <div class='max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div class='text-center'>
-          <${Subtitle}>Quarkus Kafka Demo</Subtitle>
-          <${Title}>Mounts Processing</Title>
+          <${Subtitle}>Eclipse JKube Quarkus Kafka Demo</Subtitle>
+          <${Title}>Data Processing</Title>
           <p class='mt-4 text-xl text-gray-600'>
-            Get pictures of your favorite mounts.
+            Get information about your favorite topics.
           </p>
         </div>
         <div class='mt-8 relative'>
           <${Input} />
         </div>
         <div class='-p-4 relative flex flex-wrap'>
-          ${mounts.map((mount, idx) => (html`<${MountCard} key=${idx} ...${mount} />`))}
+          ${entries.map((data, idx) => (html`<${DataCard} key=${idx} ...${data} />`))}
         </div>
-        ${mounts.length > 0 && (html`<div class='text-xs'>
-          *Elevation figure is completely random and inaccurate.
+        ${entries.length > 0 && (html`<div class='text-xs'>
+          *This is a demo, data retrieved from unreliable sources
         </div>`)}
       </div>
     </div>

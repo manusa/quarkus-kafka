@@ -7,16 +7,16 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class MountCreationService {
+public class QueryCreationService {
 
-  private final Emitter<String> mountEmitter;
+  private final Emitter<String> queryEmitter;
 
   @Inject
-  public MountCreationService(@Channel("mounts-out") Emitter<String> mountEmitter) {
-    this.mountEmitter = mountEmitter;
+  public QueryCreationService(@Channel("queries-out") Emitter<String> queryEmitter) {
+    this.queryEmitter = queryEmitter;
   }
 
-  public void addMount(String mount) {
-    mountEmitter.send(mount);
+  public void newQuery(String query) {
+    queryEmitter.send(query);
   }
 }
