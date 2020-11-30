@@ -66,7 +66,7 @@ const DataCard = ({name, description, image, originalQuery}) => (html`
   </div>
 `);
 
-const App = () => {
+const EntryGrid = () => {
   const [entries, setEntries] = useState([]);
   const [polling, setPolling] = useState(false);
   useEffect(() => {
@@ -81,27 +81,33 @@ const App = () => {
     }
   }, [setEntries]);
   return (html`
-    <div class='py-12 bg-white'>
-      <div class='max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div class='text-center'>
-          <${Subtitle}>Eclipse JKube Quarkus Kafka Demo</Subtitle>
-          <${Title}>Data Processing</Title>
-          <p class='mt-4 text-xl text-gray-600'>
-            Get information about your favorite topics.
-          </p>
-        </div>
-        <div class='mt-8 relative'>
-          <${Input} />
-        </div>
-        <div class='-p-4 relative flex flex-wrap'>
-          ${entries.map((data, idx) => (html`<${DataCard} key=${idx} ...${data} />`))}
-        </div>
-        ${entries.length > 0 && (html`<div class='text-xs'>
-          *This is a demo, data retrieved from unreliable sources
-        </div>`)}
+    <div>
+      <div class='-p-4 relative flex flex-wrap'>
+        ${entries.map((data, idx) => (html`<${DataCard} key=${idx} ...${data} />`))}
       </div>
+      ${entries.length > 0 && (html`<div class='text-xs'>
+        *This is a demo, data retrieved from unreliable sources
+      </div>`)}
     </div>
   `);
 };
+
+const App = () => html`
+  <div class='py-12 bg-white'>
+    <div class='max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8'>
+      <div class='text-center'>
+        <${Subtitle}>Eclipse JKube Quarkus Kafka Demo</Subtitle>
+        <${Title}>Data Processing</Title>
+        <p class='mt-4 text-xl text-gray-600'>
+          Get information about your favorite topics.
+        </p>
+      </div>
+      <div class='mt-8 relative'>
+        <${Input} />
+      </div>
+      <${EntryGrid} />
+    </div>
+  </div>
+`;
 
 render(html`<${App} />`, document.querySelector('.quarkus-kafka-demo'));
