@@ -90,11 +90,16 @@
             </config>
           </enricher>
         </configuration>
-
       </plugin>
     </plugins>
   </build>
   <profiles>
+    <profile>
+      <id>docker-hub</id>
+      <properties>
+        <jkube.generator.name>marcnuri/demo-quarkus-kafka</jkube.generator.name>
+      </properties>
+    </profile>
     <profile>
       <id>native</id>
       <activation>

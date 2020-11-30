@@ -70,6 +70,9 @@ $ mvn k8s:debug
 
 ## Quarkus Kafka Example
 
+`docker-hub` Maven profile enables pushing the image to
+https://hub.docker.com/repository/docker/marcnuri/demo-quarkus-kafka
+
 ## Spring Boot 1.x Kafka Example
 
 
